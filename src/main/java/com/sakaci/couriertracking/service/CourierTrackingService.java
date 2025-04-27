@@ -2,5 +2,5 @@ package com.sakaci.couriertracking.service;
 
 
 public interface CourierTrackingService {
-    void trackCourier(String courierId, double lat, double lng, boolean isStoreEntry);
+    void recordLocation(String courierId, Double lat, Double lng, String timestamp);
 }

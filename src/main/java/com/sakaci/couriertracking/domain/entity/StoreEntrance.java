@@ -4,51 +4,48 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.UUID;
 
-import jakarta.persistence.Column;
+import jakarta.persistence.Id;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.ToString;
 
-
 @Entity
-@Table(name = "courier_locations")
+@Table(name = "store_entrances")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CourierLocation {
-    
+public class StoreEntrance {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
-    
+
     @Column(name = "courier_id", nullable = false)
     private String courierId;
-    
-    @Column(name = "lat", nullable = false)
-    private Double lat;
-    
-    @Column(name = "lng", nullable = false)
-    private Double lng;
-    
-    @Column(nullable = false, updatable = false)
-    private Instant timestamp;
 
-    @Column(updatable = false)
-    private Boolean isStoreEntry = false;
-    
+    @Column(name = "store_id", nullable = false)
+    private UUID storeId;
+
+    @Column(name = "distance_meters", nullable = false)
+    private double distanceMeters;
+
+    @Column(name = "entrance_time", nullable = false)
+    private Instant entranceTime;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CourierLocation that)) return false;
+        if (!(o instanceof StoreEntrance that)) return false;
         return id != null && Objects.equals(id, that.id);
     }
 
@@ -56,4 +53,5 @@ public class CourierLocation {
     public int hashCode() {
         return id != null ? Objects.hash(id) : super.hashCode();
     }
+
 }

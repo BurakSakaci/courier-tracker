@@ -1,6 +1,8 @@
-package com.sakaci.couriertracking.service;
+package com.sakaci.couriertracking.service.impl;
 
 import org.springframework.stereotype.Service;
+
+import com.sakaci.couriertracking.service.DistanceCalculatorService;
 
 @Service
 public class DistanceCalculatorServiceImpl implements DistanceCalculatorService {

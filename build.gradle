@@ -37,6 +37,7 @@ dependencies {
     // Database
     implementation 'org.flywaydb:flyway-core'
     runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.orbisgis:h2gis:2.2.0'  // Adds spatial functions to H2
     // runtimeOnly 'org.postgresql:postgresql' // For future PostgreSQL support
     
     // Caching
