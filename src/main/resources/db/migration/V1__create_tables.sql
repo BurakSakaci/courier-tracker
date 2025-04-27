@@ -29,3 +29,9 @@ CREATE INDEX courier_locations_courier_id_idx ON courier_locations(courier_id);
 CREATE INDEX store_entrances_courier_id_idx ON store_entrances(courier_id);
 CREATE INDEX store_entrances_store_id_idx ON store_entrances(store_id);
 CREATE INDEX store_entrances_time_idx ON store_entrances(entrance_time);
+
+-- select * from courier_locations;
+
+-- select * from store_entrances;
+
+-- select * from stores;
