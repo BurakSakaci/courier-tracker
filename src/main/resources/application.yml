@@ -1,44 +1,79 @@
 spring:
   application:
     name: courier-tracker
+  
+  # Database Configuration (H2 default, PostgreSQL available)
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1
-    driver-class-name: org.h2.Driver
-    username: admin
-    password: admin
+    url: ${DATASOURCE_URL:jdbc:h2:mem:courierdb;DB_CLOSE_DELAY=-1}
+    driver-class-name: ${DATASOURCE_DRIVER:org.h2.Driver}
+    username: ${DATASOURCE_USERNAME:admin}
+    password: ${DATASOURCE_PASSWORD:admin}
+    hikari:
+      maximum-pool-size: 10
+  
   jpa:
     hibernate:
       ddl-auto: validate
-    show-sql: true
+    show-sql: ${SHOW_SQL:true}
     properties:
       hibernate:
         format_sql: true
-        dialect: org.hibernate.dialect.H2Dialect
-    generate-ddl: false # Disable if using schema.sql
+        dialect: ${HIBERNATE_DIALECT:org.hibernate.dialect.H2Dialect}
+  
+  # H2 Console (only for development)
   h2:
     console:
-      enabled: true
+      enabled: ${H2_CONSOLE_ENABLED:true}
       path: /h2-console
       settings:
         trace: false
-        web-allow-others: false
-
-  # r2dbc:
-  #   url: r2dbc:h2:mem:///testdb
-
+        web-allow-others: true
+  
+  # Kafka Configuration
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: courier-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.sakaci.couriertracking.domain"
+  
+  # Redis Configuration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 5000
+  
+  # Cache Configuration
   cache:
     type: caffeine
+    redis:
+      time-to-live: 10m
 
-caffeine:
-  spec: maximumSize=1000,expireAfterWrite=10m
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info
-
+# Application-specific properties
 app:
   store-data-file: classpath:stores.json
   proximity-threshold-meters: 100
   reentry-minutes-threshold: 1
+  kafka:
+    topics:
+      location-updates: courier-locations
+      store-entrances: store-entrance-events
+
+# Actuator Endpoints
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,kafka
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true

@@ -1,0 +1,53 @@
+services:
+  # courier-app:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=dev
+  #     - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+  #     - SPRING_REDIS_HOST=redis
+  #     - SPRING_DATASOURCE_URL=jdbc:h2:mem:courierdb;DB_CLOSE_DELAY=-1
+  #   depends_on:
+  #     - redis
+  #     - kafka
+  #     - zookeeper
+  #   networks:
+  #     - courier-network
+
+  redis:
+    image: redis:7.0-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - courier-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.3.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - courier-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.3.0
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+    networks:
+      - courier-network
+
+networks:
+  courier-network:
+    driver: bridge
