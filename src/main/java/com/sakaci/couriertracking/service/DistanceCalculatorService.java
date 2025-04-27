@@ -1,6 +1,9 @@
 package com.sakaci.couriertracking.service;
 
-//TODO: Implement distance calculator with strategy pattern
+import java.util.List;
+
 public interface DistanceCalculatorService {
    double calculateDistance(double lat1, double lng1, double lat2, double lng2);
+   List<String> getAvailableStrategies();
+   void setActiveStrategy(String strategyName);
 }

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.sakaci.couriertracking.domain.dto.CourierLocationDto;
 import com.sakaci.couriertracking.event.LocationUpdateEvent;
 import com.sakaci.couriertracking.event.producer.LocationEventProducer;
+import com.sakaci.couriertracking.service.CourierLocationService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -26,13 +27,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class CourierTrackingController {
 
     private final LocationEventProducer locationEventProducer;
+    private final CourierLocationService courierLocationService;
 
-    @GetMapping("distance/{id}")
-    public ResponseEntity<String> getDistance(@PathVariable String id) {
-        return ResponseEntity.ok(id);
+    @GetMapping("/total-distance/{courierId}")
+    public ResponseEntity<Double> getTotalTravelDistance(@PathVariable String courierId) {
+        Double distance = courierLocationService.getTotalTravelDistance(courierId);
+        return ResponseEntity.ok(distance);
+    }
+    
+    @GetMapping("/last-distance/{courierId}")
+    public ResponseEntity<Double> getLastTravelDistance(@PathVariable String courierId) {
+        Double distance = courierLocationService.getLastTravelDistance(courierId);
+        return ResponseEntity.ok(distance);
     }
 
-    @PostMapping("/locations")
+    @PostMapping
     public ResponseEntity<Void> recordLocation(@RequestBody CourierLocationDto dto) {
         LocationUpdateEvent event = new LocationUpdateEvent(
                 dto.getCourierId(),

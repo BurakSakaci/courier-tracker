@@ -6,21 +6,18 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.sakaci.couriertracking.domain.entity.Store;
+import com.sakaci.couriertracking.domain.entity.StoreEntrance;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface StoreRepository extends JpaRepository<Store, UUID> {
     
-    @Query(value = """
-        SELECT * FROM stores 
-        WHERE SQRT(
-            POWER(69.1 * (lat - :lat), 2) + 
-            POWER(69.1 * (:lng - lng) * COS(lat / 57.3), 2)
-        ) * 1609.34 <= :radius
-        """, nativeQuery = true)
-    List<Store> findNearbyStores(@Param("lat") double lat, 
-                               @Param("lng") double lng,
-                               @Param("radius") double radiusInMeters);
+    @Query("SELECT se FROM StoreEntrance se " +
+           "WHERE se.courierId = :courierId AND se.storeId = :storeId " +
+           "ORDER BY se.entranceTime DESC LIMIT 1")
+    Optional<StoreEntrance> findLastByCourierAndStore(
+        @Param("courierId") String courierId, 
+        @Param("storeId") UUID storeId);
 }

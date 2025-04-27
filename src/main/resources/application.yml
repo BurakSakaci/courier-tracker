@@ -54,6 +54,8 @@ spring:
   # Cache Configuration
   cache:
     type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=1h
     redis:
       time-to-live: 10m
 

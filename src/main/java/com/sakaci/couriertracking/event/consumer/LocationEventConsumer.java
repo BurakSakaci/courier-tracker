@@ -8,32 +8,30 @@ import lombok.RequiredArgsConstructor;
 
 import com.sakaci.couriertracking.domain.entity.Store;
 import com.sakaci.couriertracking.event.LocationUpdateEvent;
-import com.sakaci.couriertracking.service.CourierTrackingService;
-import com.sakaci.couriertracking.service.DistanceCalculatorService;
 import com.sakaci.couriertracking.service.StoreService;
+import com.sakaci.couriertracking.service.CourierLocationService;
 import com.sakaci.couriertracking.service.StoreEntranceService;
 
 @Service
 @RequiredArgsConstructor
 public class LocationEventConsumer {
+    private static final double PROXIMITY_THRESHOLD_METERS = 100.0;
 
-    private final CourierTrackingService trackingService;
+    private final CourierLocationService courierLocationService;
     private final StoreService storeService;
     private final StoreEntranceService entranceService;
-    private final DistanceCalculatorService distanceCalculatorService;
-    private static final double PROXIMITY_THRESHOLD_METERS = 100.0;
 
     @KafkaListener(topics = "${app.kafka.topics.location-updates}")
     public void processLocationUpdate(LocationUpdateEvent event) {
         // 1. Save the location
-        trackingService.recordLocation(
+        courierLocationService.recordLocation(
             event.getCourierId(),
             event.getLat(),
             event.getLng(),
             event.getTimestamp()
         );
 
-        // 2. Check for nearby stores
+        // 2. Find nearby stores (distance calculation happens inside storeService)
         List<Store> nearbyStores = storeService.findNearbyStores(
             event.getLat(),
             event.getLng(),
@@ -41,24 +39,13 @@ public class LocationEventConsumer {
         );
 
         // 3. Process store entrances
-        nearbyStores.forEach(store -> {
-            double distance = calculateDistance(
-                event.getLat(), event.getLng(),
-                store.getLat(), store.getLng()
-            );
-            
-            if (distance <= PROXIMITY_THRESHOLD_METERS) {
-                entranceService.processPotentialEntrance(
-                    event.getCourierId(),
-                    store,
-                    distance,
-                    event.getTimestamp()
-                );
-            }
-        });
-    }
-
-    private double calculateDistance(Double lat, Double lng, Double lat2, Double lng2) {
-        return distanceCalculatorService.calculateDistance(lat, lng, lat2, lng2);
+        nearbyStores.forEach(store -> 
+            entranceService.processPotentialEntrance(
+                event.getCourierId(),
+                store,
+                PROXIMITY_THRESHOLD_METERS, // We know they're within threshold
+                event.getTimestamp()
+            )
+        );
     }
 }
