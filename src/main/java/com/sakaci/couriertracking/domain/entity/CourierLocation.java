@@ -43,7 +43,7 @@ public class CourierLocation {
     private Instant timestamp;
 
     @Column(updatable = false)
-    private Boolean isStoreEntry = false;
+    private Boolean isStoreEntry = false; //TODO
     
     @Override
     public boolean equals(Object o) {
