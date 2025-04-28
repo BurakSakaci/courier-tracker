@@ -55,6 +55,8 @@ dependencies {
     testImplementation 'org.testcontainers:kafka:1.19.7'
     testImplementation 'org.testcontainers:postgresql:1.19.7'
     testImplementation 'org.testcontainers:junit-jupiter:1.19.7'
+    testImplementation 'org.instancio:instancio-junit:3.6.0'
+    testImplementation 'org.instancio:instancio-core:3.6.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
