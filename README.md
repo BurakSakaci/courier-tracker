@@ -62,13 +62,14 @@ courier-tracker/
 - **Spring Boot 3.4.5**: Modern, production-grade Spring applications
 - **Spring Data JPA**: Simplifies data access with JPA
 - **Spring Kafka**: Kafka messaging support
-- **Spring Cache (Caffeine, Redis)**: Fast in-memory and distributed caching
+- **Spring Cache (Caffeine, Redis)**: Fast in-memory and distributed caching !!! will be implemented 
 - **Flyway**: Database migrations
-- **H2 Database & H2GIS**: In-memory DB with spatial functions (default); PostgreSQL supported
+- **H2 Database**: In-memory DB
 - **Lombok**: Reduces boilerplate code
 - **Gradle**: Build automation tool
 - **Testcontainers**: Integration testing with Kafka/PostgreSQL
 - **Strategy Pattern**: Pluggable distance calculation (Haversine, Vincenty, etc.)
+- **Observer Pattern**: Pluggable store entry detection with listeners
 
 ## API Endpoints
 
@@ -76,6 +77,8 @@ courier-tracker/
 - `POST /api/courier` : Record a courier's new location
 - `GET /api/courier/total-distance/{courierId}` : Get the total distance traveled by a courier
 - `GET /api/courier/last-distance/{courierId}` : Get the last segment distance traveled by a courier
+- `POST /api/courier/store-entrance` : Record a courier's store entrance
+- `POST /api/courier/evict-cache` : Evict the cache
 
 ### Distance Calculation Strategy APIs
 - `GET /api/distance-calculation/strategies` : List available distance calculation strategies
@@ -174,7 +177,3 @@ Configuration is managed via `src/main/resources/application.yml` and environmen
   - `server.port` (default: `8080`)
 
 All properties can be overridden via environment variables (see `${...}` syntax in `application.yml`).
-
-## License
-
-[MIT License or your chosen license]
