@@ -153,7 +153,7 @@ request body:
 - `name`: Store name
 - `lat`: Latitude
 - `lng`: Longitude
-- `storeType`: Type of store (MIGROS, MACRO_CENTER, MION, OTHER)
+- `storeType`: Type of store
 
 ### StoreEntrance
 - `id`: Unique identifier (UUID)
