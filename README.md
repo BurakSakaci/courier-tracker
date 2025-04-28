@@ -8,6 +8,10 @@ The Courier Tracker application allows tracking of courier locations and provide
 - Record courier location updates
 - Calculate distances between couriers and stores
 - Detect when couriers are near stores
+- Calculate total distance traveled by couriers
+- Calculate last segment distance traveled by couriers
+- Record store entrances
+- Evict cache
 
 ## Features
 
@@ -62,27 +66,79 @@ courier-tracker/
 - **Spring Boot 3.4.5**: Modern, production-grade Spring applications
 - **Spring Data JPA**: Simplifies data access with JPA
 - **Spring Kafka**: Kafka messaging support
-- **Spring Cache (Caffeine, Redis)**: Fast in-memory and distributed caching !!! will be implemented 
+- **Spring Cache (Caffeine, Redis)**: Fast in-memory and distributed caching !!! can be implemented 
 - **Flyway**: Database migrations
 - **H2 Database**: In-memory DB
 - **Lombok**: Reduces boilerplate code
 - **Gradle**: Build automation tool
-- **Testcontainers**: Integration testing with Kafka/PostgreSQL
+- **Testcontainers**: Integration testing with Kafka/PostgreSQL !!! can be implemented 
+- **Unit Tests**: Unit testing
 - **Strategy Pattern**: Pluggable distance calculation (Haversine, Vincenty, etc.)
 - **Observer Pattern**: Pluggable store entry detection with listeners
 
 ## API Endpoints
 
-### Courier APIs
+#### Courier APIs
+
 - `POST /api/courier` : Record a courier's new location
+request body:
+```json
+{
+  "courierId": "123e4567-e89b-12d3-a456-426614174000",
+  "lat": 40.9923307,
+  "lng": 29.1244229
+}
+```
+
 - `GET /api/courier/total-distance/{courierId}` : Get the total distance traveled by a courier
+response body:
+```json
+{
+  "totalDistance": 123456.78
+}
+```
+
 - `GET /api/courier/last-distance/{courierId}` : Get the last segment distance traveled by a courier
+response body:
+```json
+{
+  "lastDistance": 123456.78
+}
+```
 - `POST /api/courier/store-entrance` : Record a courier's store entrance
+request body:
+```json
+{
+  "courierId": "123e4567-e89b-12d3-a456-426614174000",
+  "storeId": "123e4567-e89b-12d3-a456-426614174000"
+}
+```
+
 - `POST /api/courier/evict-cache` : Evict the cache
 
-### Distance Calculation Strategy APIs
+#### Distance Calculation APIs
+
 - `GET /api/distance-calculation/strategies` : List available distance calculation strategies
+response body:
+```json
+{
+  "strategies": ["haversine", "vincenty"]
+}
+```
 - `POST /api/distance-calculation/strategy/{name}` : Set the active distance calculation strategy (e.g., haversine, vincenty)
+request body:
+```json
+{
+  "strategy": "haversine"
+}
+```
+
+### Actuator Endpoints
+- `/actuator/health` : Health check
+- `/actuator/info` : Application info
+- `/actuator/metrics` : Application metrics
+- `/actuator/kafka` : Kafka metrics
+
 
 ## Data Models
 
@@ -117,7 +173,8 @@ courier-tracker/
 1. Clone the repository
 2. Navigate to the project directory
 3. Start dependencies if needed (Kafka, Redis; e.g. via Docker Compose)
-4. Run the application:
+4. Don't forget to check stores.json, because it loads store data from this file on application startup
+5. Run the application:
    ```sh
    ./gradlew bootRun
    ```
@@ -132,7 +189,10 @@ courier-tracker/
 ```sh
 ./gradlew test
 ```
-Tests use JUnit and Testcontainers for Kafka/PostgreSQL integration.
+Tests use JUnit, Instancio and Mockito.
+
+You can view test coverage report at `build/reports/jacoco/test/html/index.html`. After running tests, you can view the report. ./gradlew clean test jacocoTestReport 
+
 
 ### Accessing the H2 Console
 - Visit [http://localhost:8080/h2-console](http://localhost:8080/h2-console) (enabled by default in dev)
@@ -177,3 +237,7 @@ Configuration is managed via `src/main/resources/application.yml` and environmen
   - `server.port` (default: `8080`)
 
 All properties can be overridden via environment variables (see `${...}` syntax in `application.yml`).
+
+### Mock Coordinates
+
+You can check for mock_coordinates at `src/main/resources/mock_coordinates` to test manually.

@@ -30,13 +30,13 @@ public class StoreEntrance {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
 
-    @Column(name = "courier_id", nullable = false)
+    @Column(name = "courier_id", nullable = false, updatable = false)
     private String courierId;
 
-    @Column(name = "store_id", nullable = false)
+    @Column(name = "store_id", nullable = false, updatable = false)
     private UUID storeId;
 
-    @Column(name = "entrance_time", nullable = false)
+    @Column(name = "entrance_time", nullable = false, updatable = false)
     private Instant entranceTime;
 
     @Override
