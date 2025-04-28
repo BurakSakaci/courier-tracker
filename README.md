@@ -135,9 +135,7 @@ request body:
 
 ### Actuator Endpoints
 - `/actuator/health` : Health check
-- `/actuator/info` : Application info
 - `/actuator/metrics` : Application metrics
-- `/actuator/kafka` : Kafka metrics
 
 
 ## Data Models
