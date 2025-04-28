@@ -25,12 +25,12 @@ public class CourierLocationServiceImpl implements CourierLocationService {
 
     @Override
     @Transactional
-    public void recordLocation(String courierId, Double lat, Double lng, String timestamp) {
+    public void recordLocation(String courierId, Double lat, Double lng, Instant timestamp) {
         CourierLocation courierLocation = new CourierLocation();
         courierLocation.setCourierId(courierId);
         courierLocation.setLat(lat);
         courierLocation.setLng(lng);
-        courierLocation.setTimestamp(Instant.parse(timestamp));
+        courierLocation.setTimestamp(timestamp);
         courierLocationRepository.save(courierLocation);
         log.info("Recorded location for courier: {}, at: {}", courierId, timestamp);
     }

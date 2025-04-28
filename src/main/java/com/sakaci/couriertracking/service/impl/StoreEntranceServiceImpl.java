@@ -26,7 +26,7 @@ public class StoreEntranceServiceImpl implements StoreEntranceService {
     @Transactional
     @Override
     public void processPotentialEntrance(String courierId, Store store, 
-                                       double distance, String timestamp) {
+                                       double distance, Instant timestamp) {
         Optional<StoreEntrance> lastEntrance = entranceRepository
             .findLastByCourierIdAndStoreId(courierId, store.getId());
             
@@ -36,16 +36,14 @@ public class StoreEntranceServiceImpl implements StoreEntranceService {
             StoreEntrance entrance = new StoreEntrance();
             entrance.setCourierId(courierId);
             entrance.setStoreId(store.getId());
-            entrance.setDistanceMeters(distance);
-            entrance.setEntranceTime(Instant.parse(timestamp));
+            entrance.setEntranceTime(timestamp);
             
             entranceRepository.save(entrance);
         }
     }
 
-    private boolean isOutsideReentryWindow(StoreEntrance lastEntrance, String newTimestamp) {
+    private boolean isOutsideReentryWindow(StoreEntrance lastEntrance, Instant newTimestamp) {
         Instant lastTime = lastEntrance.getEntranceTime();
-        Instant newTime = Instant.parse(newTimestamp);
-        return Duration.between(lastTime, newTime).toMinutes() >= REENTRY_THRESHOLD_MINUTES;
+        return Duration.between(lastTime, newTimestamp).toMinutes() >= REENTRY_THRESHOLD_MINUTES;
     }
 }

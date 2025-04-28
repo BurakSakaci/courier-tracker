@@ -12,7 +12,7 @@ The Courier Tracker application allows tracking of courier locations and provide
 ## Features
 
 - **Location Tracking**: Record and store courier locations with timestamps
-- **Distance Calculation**: Calculate distances between couriers and stores using the Haversine formula
+- **Distance Calculation**: Calculate distances between couriers and stores using pluggable strategies (Haversine, Vincenty, etc.)
 - **Store Entry Detection**: Detect when couriers enter the vicinity of a store
 - **Automatic Store Loading**: Load store data from a JSON file on application startup
 
@@ -37,10 +37,12 @@ courier-tracker/
 │   │   │   ├── event/                   # Event handling
 │   │   │   ├── observer/                # Observer pattern implementations
 │   │   │   ├── service/                 # Business logic services
-│   │   │   │   ├── CourierTrackingService.java
-│   │   │   │   ├── CourierTrackingServiceImpl.java
+│   │   │   │   ├── CourierLocationService.java
 │   │   │   │   ├── DistanceCalculatorService.java
-│   │   │   │   └── DistanceCalculatorServiceImpl.java
+│   │   │   │   ├── StoreEntranceService.java
+│   │   │   │   ├── StoreService.java
+│   │   │   │   └── impl/                # Service implementations
+│   │   │   ├── strategy/                # Distance calculation strategies (Haversine, Vincenty)
 │   │   │   └── util/                    # Utility classes
 │   │   └── resources/
 │   │       ├── application.yml          # Application configuration
@@ -56,17 +58,28 @@ courier-tracker/
 
 ## Technology Stack
 
-- **Java 17+**
-- **Spring Boot**: Framework for creating stand-alone, production-grade Spring applications
+- **Java 21**
+- **Spring Boot 3.4.5**: Modern, production-grade Spring applications
 - **Spring Data JPA**: Simplifies data access with JPA
+- **Spring Kafka**: Kafka messaging support
+- **Spring Cache (Caffeine, Redis)**: Fast in-memory and distributed caching
+- **Flyway**: Database migrations
+- **H2 Database & H2GIS**: In-memory DB with spatial functions (default); PostgreSQL supported
 - **Lombok**: Reduces boilerplate code
 - **Gradle**: Build automation tool
-- **H2 Database**: In-memory database (configurable)
+- **Testcontainers**: Integration testing with Kafka/PostgreSQL
+- **Strategy Pattern**: Pluggable distance calculation (Haversine, Vincenty, etc.)
 
 ## API Endpoints
 
-- `GET /api/courier/distance/{id}`: Get distance information for a courier
-- `POST /api/courier/locations`: Update courier location
+### Courier APIs
+- `POST /api/courier` : Record a courier's new location
+- `GET /api/courier/total-distance/{courierId}` : Get the total distance traveled by a courier
+- `GET /api/courier/last-distance/{courierId}` : Get the last segment distance traveled by a courier
+
+### Distance Calculation Strategy APIs
+- `GET /api/distance-calculation/strategies` : List available distance calculation strategies
+- `POST /api/distance-calculation/strategy/{name}` : Set the active distance calculation strategy (e.g., haversine, vincenty)
 
 ## Data Models
 
@@ -85,32 +98,83 @@ courier-tracker/
 - `lng`: Longitude
 - `storeType`: Type of store (MIGROS, MACRO_CENTER, MION, OTHER)
 
+### StoreEntrance
+- `id`: Unique identifier (UUID)
+- `courierId`: Courier identifier
+- `storeId`: Store identifier (UUID)
+- `entranceTime`: Time when the courier entered the store
+
 ## Getting Started
 
 ### Prerequisites
-- Java 17 or higher
-- Gradle
+- Java 21 (ensure `JAVA_HOME` points to a Java 21 installation)
+- Gradle (wrapper included)
 
 ### Running the Application
 1. Clone the repository
 2. Navigate to the project directory
-3. Run the application:
-   ```
+3. Start dependencies if needed (Kafka, Redis; e.g. via Docker Compose)
+4. Run the application:
+   ```sh
    ./gradlew bootRun
    ```
-4. The application will start on port 8080 (default)
+   The app will start on port 8080 by default.
 
 ### Building the Application
-```
+```sh
 ./gradlew build
 ```
 
+### Running Tests
+```sh
+./gradlew test
+```
+Tests use JUnit and Testcontainers for Kafka/PostgreSQL integration.
+
+### Accessing the H2 Console
+- Visit [http://localhost:8080/h2-console](http://localhost:8080/h2-console) (enabled by default in dev)
+- JDBC URL: `jdbc:h2:mem:courierdb;DB_CLOSE_DELAY=-1`
+- User: `admin` | Password: `admin`
+
 ## Configuration
 
-Configuration is managed through `application.yml`. Key configurations include:
-- Database settings
-- Store data file location
+Configuration is managed via `src/main/resources/application.yml` and environment variables.
+
+### Main Configuration Options
+
+- **Database**
+  - `spring.datasource.url` (default: `jdbc:h2:mem:courierdb;DB_CLOSE_DELAY=-1`)
+  - `spring.datasource.driver-class-name` (default: `org.h2.Driver`)
+  - `spring.datasource.username` / `spring.datasource.password` (default: `admin`/`admin`)
+  - For PostgreSQL, set `DATASOURCE_URL`, `DATASOURCE_DRIVER`, etc.
+- **JPA**
+  - `spring.jpa.hibernate.ddl-auto` (default: `validate`)
+  - `spring.jpa.show-sql` (default: `true`)
+- **H2 Console**
+  - `spring.h2.console.enabled` (default: `true`)
+  - `spring.h2.console.path` (default: `/h2-console`)
+- **Kafka**
+  - `spring.kafka.bootstrap-servers` (default: `localhost:29092`)
+  - Consumer/producer/serialization settings are configurable via env vars (see `application.yml`)
+- **Redis**
+  - `spring.data.redis.host` (default: `localhost`)
+  - `spring.data.redis.port` (default: `6379`)
+- **Cache**
+  - `spring.cache.type` (default: `caffeine`)
+  - `spring.cache.caffeine.spec` (default: `maximumSize=500,expireAfterWrite=1h`)
+- **Application**
+  - `app.store-data-file` (default: `classpath:stores.json`)
+  - `app.proximity-threshold-meters` (default: `100`)
+  - `app.reentry-minutes-threshold` (default: `1`)
+  - `app.kafka.topics.location-updates` (default: `courier-locations`)
+  - `app.kafka.topics.store-entrances` (default: `store-entrance-events`)
+- **Actuator**
+  - `/actuator/health`, `/actuator/info`, `/actuator/metrics`, `/actuator/kafka` enabled
+- **Server**
+  - `server.port` (default: `8080`)
+
+All properties can be overridden via environment variables (see `${...}` syntax in `application.yml`).
 
 ## License
 
-[Add your license information here]
+[MIT License or your chosen license]

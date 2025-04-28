@@ -22,6 +22,7 @@ public class StoreServiceImpl implements StoreService {
     private final DistanceCalculatorService distanceCalculatorService;
 
     @Cacheable("stores")
+    @Override
     public List<Store> getAllStores() {
         return storeRepository.findAll();
     }
@@ -34,10 +35,5 @@ public class StoreServiceImpl implements StoreService {
                 store.getLat(), store.getLng()) <= proximityThresholdMeters)
             .collect(Collectors.toList());
     }
-    
-    // TODO: Implement cache clearing
-    // private void clearCache() {
-    //     cacheManager.getCacheNames().forEach(cacheName -> cacheManager.getCache(cacheName).clear());
-    // }
     
 }

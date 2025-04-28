@@ -68,6 +68,8 @@ app:
     topics:
       location-updates: courier-locations
       store-entrances: store-entrance-events
+      location-updates-dlq: location-update-topic.dlq
+      store-entrances-dlq: store-entrance-topic.dlq
 
 # Actuator Endpoints
 management:

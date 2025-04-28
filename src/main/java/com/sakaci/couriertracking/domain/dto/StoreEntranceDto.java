@@ -1,22 +1,15 @@
-package com.sakaci.couriertracking.event;
+package com.sakaci.couriertracking.domain.dto;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class StoreEntranceEvent {
+public class StoreEntranceDto {
     @NotBlank(message = "Courier ID cannot be blank")
     private String courierId;
     @NotNull(message = "Store ID cannot be null")
     private UUID storeId;
-    @NotNull(message = "Timestamp cannot be null")
-    private Instant timestamp;
 }

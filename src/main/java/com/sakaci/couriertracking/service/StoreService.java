@@ -6,6 +6,7 @@ import com.sakaci.couriertracking.domain.entity.Store;
 
 public interface StoreService {
 
+    List<Store> getAllStores();
     List<Store> findNearbyStores(Double lat, Double lng, double proximityThresholdMeters);
     
 }

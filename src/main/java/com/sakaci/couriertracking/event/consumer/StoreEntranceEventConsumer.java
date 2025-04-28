@@ -1,33 +1,26 @@
 package com.sakaci.couriertracking.event.consumer;
 
 
-import java.time.Instant;
+import java.util.List;
 
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
-import com.sakaci.couriertracking.domain.entity.StoreEntrance;
-import com.sakaci.couriertracking.domain.repository.StoreEntranceRepository;
 import com.sakaci.couriertracking.event.StoreEntranceEvent;
+import com.sakaci.couriertracking.event.consumer.listener.StoreEntranceEventListener;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StoreEntranceEventConsumer {
 
-    private final StoreEntranceRepository entranceRepository;
+    private final List<StoreEntranceEventListener> listeners;
 
     @KafkaListener(topics = "${app.kafka.topics.store-entrances}")
     public void processStoreEntrance(StoreEntranceEvent event) {
-        // Save to database
-        StoreEntrance entrance = new StoreEntrance();
-        entrance.setCourierId(event.getCourierId());
-        entrance.setStoreId(event.getStoreId());
-        entrance.setEntranceTime(Instant.parse(event.getTimestamp()));
-        entrance.setDistanceMeters(event.getDistance());
-        
-        entranceRepository.save(entrance);
-        
-        // Could also add additional processing here (notifications, etc.)
+        log.info("Processing store entrance event: {}", event);
+        listeners.forEach(listener -> listener.onStoreEntrance(event));
     }
 }

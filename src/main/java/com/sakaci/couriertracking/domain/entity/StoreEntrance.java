@@ -36,9 +36,6 @@ public class StoreEntrance {
     @Column(name = "store_id", nullable = false)
     private UUID storeId;
 
-    @Column(name = "distance_meters", nullable = false)
-    private double distanceMeters;
-
     @Column(name = "entrance_time", nullable = false)
     private Instant entranceTime;
 
