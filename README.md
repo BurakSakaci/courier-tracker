@@ -36,10 +36,10 @@ courier-tracker/
 │   │   │   │   ├── dto/                 # Data Transfer Objects
 │   │   │   │   ├── entity/              # JPA entities
 │   │   │   │   │   ├── CourierLocation.java
-│   │   │   │   │   └── Store.java
+│   │   │   │   │   ├── Store.java
+│   │   │   │   │   └── StoreEntrance.java
 │   │   │   │   └── repository/          # Spring Data JPA repositories
 │   │   │   ├── event/                   # Event handling
-│   │   │   ├── observer/                # Observer pattern implementations
 │   │   │   ├── service/                 # Business logic services
 │   │   │   │   ├── CourierLocationService.java
 │   │   │   │   ├── DistanceCalculatorService.java
